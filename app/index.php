@@ -103,7 +103,7 @@ $app->get('/api/tareas', function (Request $request, Response $response) {
     }
 });
 
-$app->get('/db-check', function (Request $request, Response $response) use ($app) {
+/*$app->get('/db-check', function (Request $request, Response $response) use ($app) {
     try {
         $db = new Database();
         $conn = $db->connect();
@@ -144,7 +144,7 @@ $app->get('/db-check', function (Request $request, Response $response) use ($app
             ->withHeader('Content-Type', 'application/json')
             ->withStatus(500);
     }
-});
+});*/
 // Catch-all route para OPTIONS (debe ir AL FINAL)
 $app->map(['OPTIONS'], '/{routes:.+}', function ($request, $response) {
     return $response;
