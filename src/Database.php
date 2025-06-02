@@ -1,23 +1,39 @@
 <?php
-class Database {
-    private $host = "TU_HOST";
-    private $db_name = "TU_DB";
-    private $username = "TU_USER";
-    private $password = "TU_PASS";
+namespace Src;
+
+use PDO;
+use PDOException;
+
+class Database
+{
+    private $host;
+    private $db;
+    private $user;
+    private $pass;
+    private $port;
     public $conn;
 
-    public function getConnection() {
+    public function __construct()
+    {
+        $this->host = getenv('DB_HOST');
+        $this->port = getenv('DB_PORT');
+        $this->db   = getenv('DB_DATABASE');
+        $this->user = getenv('DB_USERNAME');
+        $this->pass = getenv('DB_PASSWORD');
+    }
+
+    public function connect()
+    {
         $this->conn = null;
+
         try {
-            $this->conn = new PDO(
-                "mysql:host=" . $this->host . ";dbname=" . $this->db_name,
-                $this->username,
-                $this->password
-            );
-            $this->conn->exec("set names utf8");
-        } catch(PDOException $exception) {
-            echo "Error de conexión: " . $exception->getMessage();
+            $dsn = "mysql:host={$this->host};port={$this->port};dbname={$this->db};charset=utf8";
+            $this->conn = new PDO($dsn, $this->user, $this->pass);
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            echo 'Error de conexión: ' . $e->getMessage();
         }
+
         return $this->conn;
     }
 }
