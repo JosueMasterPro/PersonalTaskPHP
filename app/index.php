@@ -62,4 +62,15 @@ $app->get('/api/tareas', function (Request $request, Response $response, $args) 
     return $response->withHeader('Content-Type', 'application/json');
 });
 
+
+//ver errores de la solicitud tareas
+$usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Esto lo muestra en los logs del servidor
+error_log(print_r($usuarios, true));
+
+$payload = json_encode($usuarios);
+$response->getBody()->write($usuarios);
+return $response->withHeader('Content-Type', 'application/json');
+
 $app->run();
