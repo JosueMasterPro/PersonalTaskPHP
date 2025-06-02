@@ -96,23 +96,9 @@ $app->post('/api/usuarios', function (Request $request, Response $response) {
     try {
         // Obtener y decodificar los datos JSON
         $data = json_decode($request->getBody(), true);
-        return $response
-            ->withHeader('Content-Type', 'application/json')
-            ->withHeader('Cache-Control', 'no-store')
-            ->withStatus(200);
-        return $response->withJson([
-            'debug' => true,
-            'datos_recibidos' => $data,
-            'validacion' => [
-                'usuario' => !empty($data['usuario']),
-                'nombre' => !empty($data['name']),
-                'apellido' => !empty($data['secondName']),
-                'correo' => filter_var($data['email'] ?? '', FILTER_VALIDATE_EMAIL),
-                'password' => !empty($data['password']) 
-            ]
-        ]);
+
             // Validación de campos requeridos
-        if (empty($data['usuario']) ||empty($data['name']) || empty($data['secondName']) || empty($data['correo']) || empty($data['password'])) {
+        if (empty($data['usuario']) ||empty($data['name']) || empty($data['secondName']) || empty($data['email']) || empty($data['password'])) {
             throw new InvalidArgumentException('Todos los campos (nombre, apellido, correo, password) son requeridos');
         }
 
