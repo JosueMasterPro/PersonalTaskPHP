@@ -96,6 +96,10 @@ $app->post('/api/usuarios', function (Request $request, Response $response) {
     try {
         // Obtener y decodificar los datos JSON
         $data = json_decode($request->getBody(), true);
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Cache-Control', 'no-store')
+            ->withStatus(200);
         return $response->withJson([
             'debug' => true,
             'datos_recibidos' => $data,
