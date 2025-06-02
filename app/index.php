@@ -71,7 +71,7 @@ $app->get('/api/usuarios', function (Request $request, Response $response) {
 });
 
 // Ruta GET /api/tareas
-$app->get('/api/Tareas', function (Request $request, Response $response) {
+$app->get('/api/tareas', function (Request $request, Response $response) {
     try {
         $db = new Database();
         $conn = $db->connect();
