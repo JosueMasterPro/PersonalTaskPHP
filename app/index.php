@@ -83,5 +83,16 @@ $app->map(['OPTIONS'], '/{routes:.+}', function ($request, $response) {
     return $response;
 });
 
+
+$app->get('/debug-routes', function ($request, $response) {
+    $routes = [];
+    foreach ($this->get('routes') as $route) {
+        $routes[] = [
+            'pattern' => $route->getPattern(),
+            'methods' => $route->getMethods()
+        ];
+    }
+    return $response->withJson($routes);
+});
 $app->run();
 ?>
