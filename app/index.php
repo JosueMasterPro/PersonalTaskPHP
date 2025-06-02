@@ -74,6 +74,10 @@ $app->get('/api/usuarios', function (Request $request, Response $response) {
 $app->post('/api/usuarios', function (Request $request, Response $response) {
     $data = json_decode($request->getBody(), true);
     
+    return $response
+    ->withHeader('Content-Type', 'application/json')
+    ->withHeader('Cache-Control', 'no-store')
+    ->withStatus(200);
     // Respuesta temporal para debug
     return $response->withJson([
         'debug' => true,
