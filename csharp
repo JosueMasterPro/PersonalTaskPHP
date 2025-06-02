@@ -1,7 +1,12 @@
 /my-slim-app
 │
+├── .railway/
+│    └── project.json
 ├── public/
 │   └── index.php         # Punto de entrada de la aplicación Slim
 ├── vendor/               # Generado por Composer
 ├── composer.json
 ├── composer.lock
+├──nginx.template.conf
+├──Procfile
+├──csharp
