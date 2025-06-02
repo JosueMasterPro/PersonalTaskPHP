@@ -69,9 +69,8 @@ $app->get('/api/usuarios', function (Request $request, Response $response) {
             ->withStatus(500);
     }
 });
-
-// Ruta POST /api/usuarios
-$app->post('/api/usuarios', function (Request $request, Response $response) {
+//test de ruta post /api/usuarios(funciona)
+/*$app->post('/api/usuarios', function (Request $request, Response $response) {
     $data = json_decode($request->getBody(), true);
     
     return $response
@@ -90,8 +89,10 @@ $app->post('/api/usuarios', function (Request $request, Response $response) {
             'password' => !empty($data['password']) 
         ]
     ]);
-});
-/*$app->post('/api/usuarios', function (Request $request, Response $response) {
+});*/
+
+// Ruta POST /api/usuarios
+$app->post('/api/usuarios', function (Request $request, Response $response) {
     try {
         // Obtener y decodificar los datos JSON
         $data = json_decode($request->getBody(), true);
@@ -120,11 +121,12 @@ $app->post('/api/usuarios', function (Request $request, Response $response) {
 
         // Consulta preparada para seguridad
         $stmt = $conn->prepare("
-            INSERT INTO usuarios (nombre, apellido, correo, password)
-            VALUES (:nombre, :apellido, :correo, :password)
+            INSERT INTO usuarios (usuario,nombre, apellido, correo, password)
+            VALUES (:usuario,:nombre, :apellido, :correo, :password)
         ");
 
         // Asignar valores con bindParam
+        $stmt->bindParam(':usuario', $data['usuario']);
         $stmt->bindParam(':nombre', $data['name']);
         $stmt->bindParam(':apellido', $data['secondName']);
         $stmt->bindParam(':correo', $data['email']);
@@ -150,6 +152,7 @@ $app->post('/api/usuarios', function (Request $request, Response $response) {
         
         return $response
             ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Cache-Control', 'no-store')
             ->withStatus(201);
             
     } catch (PDOException $e) {
@@ -181,7 +184,7 @@ $app->post('/api/usuarios', function (Request $request, Response $response) {
         
         return $response->withStatus(400);
     }
-});*/
+});
 
 // Ruta GET /api/tareas
 $app->get('/api/tareas', function (Request $request, Response $response) {
