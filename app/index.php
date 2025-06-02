@@ -16,17 +16,17 @@ $app->options('/{routes:.+}', function ($request, $response, $args) {
 // Middleware CORS global
 $app->add(function ($request, $handler) {
     $response = $handler->handle($request);
-
     return $response
         ->withHeader('Access-Control-Allow-Origin', 'http://localhost:3000')
         ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
         ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
 });
 
-/*Rutas*/
+/* RUTAS */
+
 // Ruta base
 $app->get('/', function ($request, $response, $args) {
-    $response->getBody()->write("¡Hola desde Slim en railway!..");
+    $response->getBody()->write("¡Hola desde Slim en Railway!");
     return $response;
 });
 
@@ -38,6 +38,8 @@ $app->get('/api/usuarios', function (Request $request, Response $response, $args
     $sql = "SELECT * FROM usuarios";
     $stmt = $conn->query($sql);
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    error_log(print_r($users, true)); // log
 
     $payload = json_encode($users);
     $response->getBody()->write($payload);
@@ -53,21 +55,12 @@ $app->get('/api/tareas', function (Request $request, Response $response, $args) 
     $stmt = $conn->query($sql);
     $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    error_log(print_r($tareas, true)); // log
+
     $payload = json_encode($tareas);
     $response->getBody()->write($payload);
     return $response->withHeader('Content-Type', 'application/json');
 });
-
-
-//ver errores de la solicitud tareas
-$usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Esto lo muestra en los logs del servidor
-error_log(print_r($usuarios, true));
-
-$payload = json_encode($usuarios);
-$response->getBody()->write($usuarios);
-return $response->withHeader('Content-Type', 'application/json');
 
 $app->run();
 ?>
