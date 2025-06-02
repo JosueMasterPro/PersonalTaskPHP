@@ -8,67 +8,79 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $app = AppFactory::create();
 
-// Middleware para manejar solicitudes OPTIONS (Preflight CORS)
-$app->options('/{routes:.+}', function ($request, $response, $args) {
-    return $response
-        ->withHeader('Access-Control-Allow-Origin', '*')
-        ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
-        ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-});
-
-// Middleware CORS global
+// Middleware CORS global (debe ir PRIMERO)
 $app->add(function ($request, $handler) {
+    // Preflight OPTIONS request
+    if ($request->getMethod() === 'OPTIONS') {
+        $response = new \Slim\Psr7\Response();
+        return $response
+            ->withHeader('Access-Control-Allow-Origin', '*')
+            ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
+            ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
+            ->withHeader('Access-Control-Allow-Credentials', 'true');
+    }
+
+    // Normal requests
     $response = $handler->handle($request);
     return $response
         ->withHeader('Access-Control-Allow-Origin', '*')
         ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
         ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
-        ->withHeader('Access-Control-Allow-Credentials', 'true')
         ->withHeader('Vary', 'Origin');
 });
 
 /* RUTAS */
 
-// Ruta base
-$app->get('/', function ($request, $response, $args) {
+$app->get('/', function (Request $request, Response $response) {
     $response->getBody()->write("¡Hola desde Slim en Railway!");
     return $response;
 });
 
-// Obtener usuarios
-$app->get('/api/usuarios', function (Request $request, Response $response, $args) {
-    $db = new Database();
-    $conn = $db->connect();
+// Ruta GET /api/usuarios
+$app->get('/api/usuarios', function (Request $request, Response $response) {
+    try {
+        $db = new Database();
+        $conn = $db->connect();
 
-    $sql = "SELECT * FROM usuarios";
-    $stmt = $conn->query($sql);
-    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $conn->query("SELECT * FROM usuarios");
+        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    error_log(print_r($users, true)); // log
-
-    $payload = json_encode($users);
-    $response->getBody()->write($payload);
-    return $response
-        ->withHeader('Content-Type', 'application/json')
-        ->withHeader('Cache-Control', 'no-store');
+        $response->getBody()->write(json_encode($users));
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Cache-Control', 'no-store');
+            
+    } catch (PDOException $e) {
+        error_log("DB Error: " . $e->getMessage());
+        $response->getBody()->write(json_encode(['error' => 'Database error']));
+        return $response->withStatus(500);
+    }
 });
 
-// Obtener tareas
-$app->get('/api/tareas', function (Request $request, Response $response, $args) {
-    $db = new Database();
-    $conn = $db->connect();
+// Ruta GET /api/tareas
+$app->get('/api/tareas', function (Request $request, Response $response) {
+    try {
+        $db = new Database();
+        $conn = $db->connect();
 
-    $sql = "SELECT id, usuario_id, descripcion, estado FROM tareas";
-    $stmt = $conn->query($sql);
-    $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $conn->query("SELECT id, usuario_id, descripcion, estado FROM tareas");
+        $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    error_log(print_r($tareas, true)); 
+        $response->getBody()->write(json_encode($tasks));
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Cache-Control', 'no-store');
+            
+    } catch (PDOException $e) {
+        error_log("DB Error: " . $e->getMessage());
+        $response->getBody()->write(json_encode(['error' => 'Database error']));
+        return $response->withStatus(500);
+    }
+});
 
-    $payload = json_encode($tareas);
-    $response->getBody()->write($payload);
-    return $response
-        ->withHeader('Content-Type', 'application/json')
-        ->withHeader('Cache-Control', 'no-store');
+// Catch-all route para OPTIONS (debe ir AL FINAL)
+$app->map(['OPTIONS'], '/{routes:.+}', function ($request, $response) {
+    return $response;
 });
 
 $app->run();
