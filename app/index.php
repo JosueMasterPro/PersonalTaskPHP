@@ -8,12 +8,13 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $app = AppFactory::create();
 
-// Middleware global para CORS y logging
-$app->add(function ($request, $handler) {
-    $method = $request->getMethod();
-    $uri = $request->getUri();
-    error_log("Solicitud: {$method} {$uri}");
+// RESPONDER solicitudes OPTIONS antes de llegar a las rutas (Preflight CORS)
+$app->options('/{routes:.+}', function ($request, $response, $args) {
+    return $response;
+});
 
+// Middleware CORS global
+$app->add(function ($request, $handler) {
     $response = $handler->handle($request);
 
     return $response
@@ -22,12 +23,7 @@ $app->add(function ($request, $handler) {
         ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
 });
 
-// Esto permite responder correctamente a las solicitudes preflight
-$app->options('/{routes:.+}', function ($request, $response, $args) {
-    return $response;
-});
-
-
+/*Rutas*/
 // Ruta base
 $app->get('/', function ($request, $response, $args) {
     $response->getBody()->write("¡Hola desde Slim en railway!..");
