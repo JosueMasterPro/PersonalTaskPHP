@@ -79,7 +79,7 @@ $app->get('/api/tareas', function (Request $request, Response $response) {
     }
 });
 
-$app->get('/db-check', function (Request $request, Response $response) {
+$app->get('/db-check', function (Request $request, Response $response) use ($app) {
     try {
         $db = new Database();
         $conn = $db->connect();
@@ -92,9 +92,8 @@ $app->get('/db-check', function (Request $request, Response $response) {
                 VERSION() as db_version
         ")->fetch();
 
-        // Crear una nueva respuesta con el factory
-        $response = $this->get('responseFactory')->createResponse();
-        
+        // Crear respuesta JSON manualmente
+        $response = new \Slim\Psr7\Response();
         $response->getBody()->write(json_encode([
             'status' => 'success',
             'connection' => $result,
@@ -110,7 +109,7 @@ $app->get('/db-check', function (Request $request, Response $response) {
             ->withStatus(200);
             
     } catch (\Exception $e) {
-        $response = $this->get('responseFactory')->createResponse();
+        $response = new \Slim\Psr7\Response();
         $response->getBody()->write(json_encode([
             'status' => 'error',
             'message' => $e->getMessage(),
@@ -122,7 +121,6 @@ $app->get('/db-check', function (Request $request, Response $response) {
             ->withStatus(500);
     }
 });
-
 // Catch-all route para OPTIONS (debe ir AL FINAL)
 $app->map(['OPTIONS'], '/{routes:.+}', function ($request, $response) {
     return $response;
