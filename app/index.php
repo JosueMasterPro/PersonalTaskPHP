@@ -8,24 +8,25 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $app = AppFactory::create();
 
-// Middleware CORS global (debe ir PRIMERO)
+// Middleware CORS (debe ser el PRIMER middleware)
 $app->add(function ($request, $handler) {
-    // Preflight OPTIONS request
+    // Respuesta para preflight OPTIONS
     if ($request->getMethod() === 'OPTIONS') {
         $response = new \Slim\Psr7\Response();
         return $response
             ->withHeader('Access-Control-Allow-Origin', '*')
-            ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
-            ->withHeader('Access-Control-Allow-Credentials', 'true');
+            ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
+            ->withHeader('Access-Control-Max-Age', '86400');
     }
 
-    // Normal requests
+    // Procesamiento normal de otras solicitudes
     $response = $handler->handle($request);
+    
     return $response
         ->withHeader('Access-Control-Allow-Origin', '*')
-        ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
         ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
+        ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
         ->withHeader('Vary', 'Origin');
 });
 
@@ -78,21 +79,42 @@ $app->get('/api/tareas', function (Request $request, Response $response) {
     }
 });
 
+$app->get('/db-check', function (Request $request, Response $response) {
+    try {
+        $db = new Database();
+        $conn = $db->connect();
+        
+        $result = $conn->query("
+            SELECT 
+                DATABASE() as db_name,
+                USER() as db_user,
+                @@hostname as db_host,
+                VERSION() as db_version
+        ")->fetch();
+
+        return $response->withJson([
+            'status' => 'success',
+            'connection' => $result,
+            'env_vars' => [
+                'DB_HOST' => getenv('DB_HOST'),
+                'DB_PORT' => getenv('DB_PORT'),
+                'DB_NAME' => getenv('DB_NAME')
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        return $response->withJson([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'trace' => getenv('APP_ENV') !== 'production' ? $e->getTrace() : null
+        ], 500);
+    }
+});
+
 // Catch-all route para OPTIONS (debe ir AL FINAL)
 $app->map(['OPTIONS'], '/{routes:.+}', function ($request, $response) {
     return $response;
 });
 
-
-$app->get('/debug-routes', function ($request, $response) {
-    $routes = [];
-    foreach ($this->get('routes') as $route) {
-        $routes[] = [
-            'pattern' => $route->getPattern(),
-            'methods' => $route->getMethods()
-        ];
-    }
-    return $response->withJson($routes);
-});
 $app->run();
 ?>

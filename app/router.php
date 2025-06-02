@@ -10,3 +10,4 @@ if (php_sapi_name() == 'cli-server') {
 }
 
 require __DIR__ . '/index.php'; // Redirige todo a Slim
+?>
