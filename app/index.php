@@ -71,23 +71,35 @@ $app->get('/api/usuarios', function (Request $request, Response $response) {
 });
 
 // Ruta GET /api/tareas
-$app->get('/api/tareas', function (Request $request, Response $response) {
+$app->get('/api/Tareas', function (Request $request, Response $response) {
     try {
         $db = new Database();
         $conn = $db->connect();
 
-        $stmt = $conn->query("SELECT id, usuario_id, descripcion, estado FROM tareas");
-        $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $conn->query("SELECT * FROM Tareas");
+        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $response->getBody()->write(json_encode($tasks));
+        // Crear nueva respuesta para asegurar compatibilidad
+        $response = new \Slim\Psr7\Response();
+        $response->getBody()->write(json_encode($users));
+        
         return $response
             ->withHeader('Content-Type', 'application/json')
-            ->withHeader('Cache-Control', 'no-store');
+            ->withHeader('Cache-Control', 'no-store')
+            ->withStatus(200);
             
     } catch (PDOException $e) {
         error_log("DB Error: " . $e->getMessage());
-        $response->getBody()->write(json_encode(['error' => 'Database error']));
-        return $response->withStatus(500);
+        
+        $response = new \Slim\Psr7\Response();
+        $response->getBody()->write(json_encode([
+            'error' => 'Database error',
+            'message' => getenv('APP_ENV') !== 'production' ? $e->getMessage() : null
+        ]));
+        
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(500);
     }
 });
 
