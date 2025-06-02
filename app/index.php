@@ -76,7 +76,7 @@ $app->get('/api/tareas', function (Request $request, Response $response) {
         $db = new Database();
         $conn = $db->connect();
 
-        $stmt = $conn->query("SELECT * FROM Tareas");
+        $stmt = $conn->query("SELECT * FROM tareas");
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Crear nueva respuesta para asegurar compatibilidad
