@@ -121,7 +121,7 @@ $app->post('/api/usuarios', function (Request $request, Response $response) {
 
         // Consulta preparada para seguridad
         $stmt = $conn->prepare("
-            INSERT INTO usuarios (usuario,nombre, apellido, correo, password)
+            INSERT INTO usuarios (usuario,nombre, apellido, email, password)
             VALUES (:usuario,:nombre, :apellido, :correo, :password)
         ");
 
