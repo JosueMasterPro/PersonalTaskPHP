@@ -72,6 +72,21 @@ $app->get('/api/usuarios', function (Request $request, Response $response) {
 
 // Ruta POST /api/usuarios
 $app->post('/api/usuarios', function (Request $request, Response $response) {
+    $data = json_decode($request->getBody(), true);
+    
+    // Respuesta temporal para debug
+    return $response->withJson([
+        'debug' => true,
+        'datos_recibidos' => $data,
+        'validacion' => [
+            'nombre' => !empty($data['nombre']),
+            'apellido' => !empty($data['apellido']),
+            'correo' => filter_var($data['correo'] ?? '', FILTER_VALIDATE_EMAIL),
+            'password' => !empty($data['password'])
+        ]
+    ]);
+});
+/*$app->post('/api/usuarios', function (Request $request, Response $response) {
     try {
         // Obtener y decodificar los datos JSON
         $data = json_decode($request->getBody(), true);
@@ -161,7 +176,7 @@ $app->post('/api/usuarios', function (Request $request, Response $response) {
         
         return $response->withStatus(400);
     }
-});
+});*/
 
 // Ruta GET /api/tareas
 $app->get('/api/tareas', function (Request $request, Response $response) {
