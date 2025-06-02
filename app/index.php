@@ -2,15 +2,18 @@
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
-use src\Database;
+use Src\Database;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $app = AppFactory::create();
 
-// RESPONDER solicitudes OPTIONS antes de llegar a las rutas (Preflight CORS)
+// Middleware para manejar solicitudes OPTIONS (Preflight CORS)
 $app->options('/{routes:.+}', function ($request, $response, $args) {
-    return $response;
+    return $response
+        ->withHeader('Access-Control-Allow-Origin', '*')
+        ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
+        ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
 });
 
 // Middleware CORS global
@@ -19,7 +22,9 @@ $app->add(function ($request, $handler) {
     return $response
         ->withHeader('Access-Control-Allow-Origin', '*')
         ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
-        ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+        ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
+        ->withHeader('Access-Control-Allow-Credentials', 'true')
+        ->withHeader('Vary', 'Origin');
 });
 
 /* RUTAS */
@@ -43,7 +48,9 @@ $app->get('/api/usuarios', function (Request $request, Response $response, $args
 
     $payload = json_encode($users);
     $response->getBody()->write($payload);
-    return $response->withHeader('Content-Type', 'application/json');
+    return $response
+        ->withHeader('Content-Type', 'application/json')
+        ->withHeader('Cache-Control', 'no-store');
 });
 
 // Obtener tareas
@@ -55,11 +62,13 @@ $app->get('/api/tareas', function (Request $request, Response $response, $args) 
     $stmt = $conn->query($sql);
     $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    error_log(print_r($tareas, true)); // log
+    error_log(print_r($tareas, true)); 
 
     $payload = json_encode($tareas);
     $response->getBody()->write($payload);
-    return $response->withHeader('Content-Type', 'application/json');
+    return $response
+        ->withHeader('Content-Type', 'application/json')
+        ->withHeader('Cache-Control', 'no-store');
 });
 
 $app->run();
