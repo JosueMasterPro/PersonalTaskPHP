@@ -92,7 +92,10 @@ $app->get('/db-check', function (Request $request, Response $response) {
                 VERSION() as db_version
         ")->fetch();
 
-        return $response->withJson([
+        // Crear una nueva respuesta con el factory
+        $response = $this->get('responseFactory')->createResponse();
+        
+        $response->getBody()->write(json_encode([
             'status' => 'success',
             'connection' => $result,
             'env_vars' => [
@@ -100,14 +103,23 @@ $app->get('/db-check', function (Request $request, Response $response) {
                 'DB_PORT' => getenv('DB_PORT'),
                 'DB_NAME' => getenv('DB_NAME')
             ]
-        ]);
-
+        ]));
+        
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(200);
+            
     } catch (\Exception $e) {
-        return $response->withJson([
+        $response = $this->get('responseFactory')->createResponse();
+        $response->getBody()->write(json_encode([
             'status' => 'error',
             'message' => $e->getMessage(),
             'trace' => getenv('APP_ENV') !== 'production' ? $e->getTrace() : null
-        ], 500);
+        ]));
+        
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(500);
     }
 });
 
