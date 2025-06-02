@@ -7,6 +7,7 @@
     "require": {
         "slim/slim": "^4.14",
         "slim/psr7": "^1.7",
-        "symfony/polyfill-php80": "^1.32"
+        "symfony/polyfill-php80": "^1.32",
+        "vlucas/phpdotenv": "^5.6"
     }
 }
