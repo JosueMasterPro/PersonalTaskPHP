@@ -6,34 +6,41 @@ use PDOException;
 
 class Database
 {
-    private $host;
-    private $db;
-    private $user;
-    private $pass;
-    private $port;
-    public $conn;
+    private $connection;
 
     public function __construct()
     {
-        $this->host = getenv('DB_HOST');
-        $this->port = getenv('DB_PORT');
-        $this->db   = getenv('DB_DATABASE');
-        $this->user = getenv('DB_USERNAME');
-        $this->pass = getenv('DB_PASSWORD');
+        // Estas variables las proporciona automáticamente Railway
+        // cuando añades un servicio de MySQL a tu proyecto
+        $dbHost = getenv('MYSQLHOST');
+        $dbPort = getenv('MYSQLPORT');
+        $dbName = getenv('MYSQLDATABASE');
+        $dbUser = getenv('MYSQLUSER');
+        $dbPass = getenv('MYSQLPASSWORD');
+        $dbUrl = getenv('MYSQL_URL'); // Alternativa para algunos entornos
+
+        // Intenta conectar usando la URL primero, luego los parámetros individuales
+        $dsn = $dbUrl ? $dbUrl : "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4";
+
+        try {
+            $this->connection = new PDO($dsn, $dbUser, $dbPass, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ]);
+
+            // Verificación adicional de conexión
+            $this->connection->query("SELECT 1");
+
+        } catch (PDOException $e) {
+            error_log("Error de conexión DB: " . $e->getMessage());
+            throw new \RuntimeException("Error al conectar con la base de datos: " . $e->getMessage());
+        }
     }
 
     public function connect()
     {
-        $this->conn = null;
-
-        try {
-            $dsn = "mysql:host={$this->host};port={$this->port};dbname={$this->db};charset=utf8";
-            $this->conn = new PDO($dsn, $this->user, $this->pass);
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            echo 'Error de conexión: ' . $e->getMessage();
-        }
-
-        return $this->conn;
+        return $this->connection;
     }
 }
+?>
