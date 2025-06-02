@@ -79,10 +79,10 @@ $app->post('/api/usuarios', function (Request $request, Response $response) {
         'debug' => true,
         'datos_recibidos' => $data,
         'validacion' => [
-            'nombre' => !empty($data['nombre']),
-            'apellido' => !empty($data['apellido']),
-            'correo' => filter_var($data['correo'] ?? '', FILTER_VALIDATE_EMAIL),
-            'password' => !empty($data['password'])
+            'nombre' => !empty($data['name']),
+            'apellido' => !empty($data['secondName']),
+            'correo' => filter_var($data['email'] ?? '', FILTER_VALIDATE_EMAIL),
+            'password' => !empty($data['password']) 
         ]
     ]);
 });
