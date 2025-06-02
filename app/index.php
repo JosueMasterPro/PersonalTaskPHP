@@ -8,22 +8,33 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $app = AppFactory::create();
 
+// Middleware global para CORS y logging
 $app->add(function ($request, $handler) {
+    $method = $request->getMethod();
+    $uri = $request->getUri();
+    error_log("Solicitud: {$method} {$uri}");
+
     $response = $handler->handle($request);
+
     return $response
-        ->withHeader('Access-Control-Allow-Origin', 'http://localhost:3000') // o 'http://localhost:3000' para más seguridad
+        ->withHeader('Access-Control-Allow-Origin', 'http://localhost:3000')
         ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
         ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
 });
 
+// Esto permite responder correctamente a las solicitudes preflight
+$app->options('/{routes:.+}', function ($request, $response, $args) {
+    return $response;
+});
 
 
+// Ruta base
 $app->get('/', function ($request, $response, $args) {
     $response->getBody()->write("¡Hola desde Slim en railway!..");
     return $response;
 });
 
-/*Solicitar usuarios a la BD*/
+// Obtener usuarios
 $app->get('/api/usuarios', function (Request $request, Response $response, $args) {
     $db = new Database();
     $conn = $db->connect();
@@ -33,13 +44,11 @@ $app->get('/api/usuarios', function (Request $request, Response $response, $args
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $payload = json_encode($users);
-
     $response->getBody()->write($payload);
     return $response->withHeader('Content-Type', 'application/json');
 });
-/*Fin Solicitar usuarios a la BD*/
-/* Solicitar las tareas de la BD */
-// Ruta para obtener todas las tareas
+
+// Obtener tareas
 $app->get('/api/tareas', function (Request $request, Response $response, $args) {
     $db = new Database();
     $conn = $db->connect();
@@ -49,19 +58,8 @@ $app->get('/api/tareas', function (Request $request, Response $response, $args) 
     $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $payload = json_encode($tareas);
-
     $response->getBody()->write($payload);
     return $response->withHeader('Content-Type', 'application/json');
 });
-/* Fin Solicitar las tareas de la BD */
-
-$app->add(function ($request, $handler) {
-    $method = $request->getMethod();
-    $uri = $request->getUri();
-    error_log("Solicitud: {$method} {$uri}");
-
-    return $handler->handle($request);
-});
-
 
 $app->run();
