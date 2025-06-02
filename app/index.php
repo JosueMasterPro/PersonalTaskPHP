@@ -70,3 +70,4 @@ $response->getBody()->write($usuarios);
 return $response->withHeader('Content-Type', 'application/json');
 
 $app->run();
+?>
