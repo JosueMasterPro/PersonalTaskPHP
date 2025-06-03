@@ -32,7 +32,6 @@ $app->add(function ($request, $handler) {
 });
 
 /* RUTAS */
-
 $app->get('/', function (Request $request, Response $response) {
     $response->getBody()->write("¡Hola desde Slim en Railway!");
     return $response;
@@ -194,14 +193,18 @@ $app->post('/api/signUp', function (Request $request, Response $response) {
         return $response->withStatus(400);
     }
 });
-//Verificar Token
-$app->get('/verificar', function (Request $req, Response $res) use ($conn) {
+// Verificar Token
+$app->get('/verificar', function (Request $req, Response $res) {
     $token = $req->getQueryParams()['token'] ?? '';
-
+    
     if (!$token) {
         $res->getBody()->write("Token no proporcionado.");
         return $res->withStatus(400);
     }
+
+    // Crear conexión dentro de la función
+    $db = new Database();
+    $conn = $db->connect();
 
     $stmt = $conn->prepare("CALL sp_VerificarCuenta(:token)");
     $stmt->bindParam(':token', $token);
@@ -216,8 +219,6 @@ $app->get('/verificar', function (Request $req, Response $res) use ($conn) {
     }
     return $res;
 });
-
-
 
 //Iniciar Sesion
 // Ruta POST /api/login
@@ -244,10 +245,17 @@ $app->post('/api/login', function (Request $request, Response $response) {
         $stmt->execute();
         
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+        
         //Verificar usuarios
         if (!$usuario) {                     // ← no existe
             throw new RuntimeException('Usuario no existe');
         }        
+
+        // Verificar si usuario está verificado
+        if (isset($usuario['verificado']) && !$usuario['verificado']) {
+            throw new RuntimeException('Usuario no verificado. Por favor verifica tu correo.');
+        }
+
         // Verificar con password_verify
         if (!$usuario || !password_verify($data['password'], $usuario['password'])) {
             throw new RuntimeException('Contraseña incorrecta o usuario incorrecto');
