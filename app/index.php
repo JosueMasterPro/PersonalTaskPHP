@@ -269,7 +269,10 @@ $app->post('/api/login', function (Request $request, Response $response) {
             'message' => getenv('APP_ENV') !== 'production' ? $e->getMessage() : null
         ]));
         
-        return $response->withStatus(500);
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Cache-Control', 'no-store')
+            ->withStatus(500);
             
     } catch (InvalidArgumentException $e) {
         $response = new \Slim\Psr7\Response();
