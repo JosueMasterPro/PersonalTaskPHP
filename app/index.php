@@ -211,7 +211,6 @@ $app->post('/api/login', function (Request $request, Response $response) {
         
         $stmt->execute();
         $stmt->bindParam(':usuario', $data['usuario']);
-        $stmt->bindParam(':password', $data['password']);
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
         // Verificar con password_verify
