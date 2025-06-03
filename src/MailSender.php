@@ -12,14 +12,14 @@ class MailSender {
 
         try {
             $this->mailer->isSMTP();
-            $this->mailer->Host = getenv('SMTP_HOST');
+            $this->mailer->Host = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
             $this->mailer->SMTPAuth = true;
-            $this->mailer->Username = getenv('SMTP_USER');
-            $this->mailer->Password = getenv('SMTP_PASS');
+            $this->mailer->Username = getenv('SMTP_USER') ?: 'SO2UNAHVS@gmail.com';
+            $this->mailer->Password = getenv('SMTP_PASS') ?: '30@Reyes' ;
             $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $this->mailer->Port = getenv('SMTP_PORT');
+            $this->mailer->Port = getenv('SMTP_PORT') ?:'587';
 
-            $this->mailer->setFrom(getenv('SMTP_FROM'), getenv('SMTP_FROM_NAME'));
+            $this->mailer->setFrom(getenv('SMTP_FROM') ?: 'no-reply@gmail.com', getenv('SMTP_FROM_NAME')?:'Josue');
             $this->mailer->isHTML(true);
 
             // Opcional para pruebas
@@ -33,7 +33,7 @@ class MailSender {
 
     public function enviarVerificacion($email, $nombre, $token) {
         try {
-            $this->mailer->addAddress('josuereyes1229@gmail.com', 'Josue Reyes');
+            $this->mailer->addAddress('josuereyes1229@gmail.com', 'Josue');
             $this->mailer->Subject = 'Confirma tu cuenta';
 
             $urlVerificacion = getenv('APP_URL') . "/verificar?token=" . urlencode($token);
