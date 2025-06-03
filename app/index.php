@@ -211,9 +211,10 @@ $app->post('/api/login', function (Request $request, Response $response) {
         $stmt->execute();
         
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+        //Verificar usuarios
         if (!$usuario) {                     // ← no existe
             throw new RuntimeException('Usuario no existe');
-        }
+        }        
         // Verificar con password_verify
         if (!$usuario || !password_verify($data['password'], $usuario['password'])) {
             throw new RuntimeException('Contraseña incorrecta o usuario incorrecto');
@@ -222,12 +223,7 @@ $app->post('/api/login', function (Request $request, Response $response) {
         // Ejecutar consulta
         $stmt->execute();
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        // Verificar si el usuario existe
-        if (!$usuario) {
-            throw new RuntimeException('Credenciales inválidas');
-        }
-
+    
         // Generar token de sesión (ejemplo básico)
         $tokenPayload = [
             'sub' => $usuario['id'],
