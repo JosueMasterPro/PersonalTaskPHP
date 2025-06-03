@@ -5,7 +5,7 @@ use Slim\Factory\AppFactory;
 use Src\Database;
 
 require __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../src\MailSender.php'; // ruta de correo
+require_once __DIR__ . '/../src/MailSender.php'; // ruta de correo
 
 $app = AppFactory::create();
 
