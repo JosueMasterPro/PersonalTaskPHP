@@ -11,11 +11,11 @@ class Database
     public function __construct()
     {
         // Cargar variables de Railway
-        $dbHost = getenv('DB_HOST') //?: 'mysql.railway.internal';
-        $dbPort = getenv('DB_PORT') //?: '3306';
-        $dbName = getenv('DB_NAME') //?: 'railway';
-        $dbUser = getenv('DB_USER') //?: 'root';
-        $dbPass = getenv('DB_PASS') //?: 'qfRrpVFfMdsORpNtIKuJtLwEFlEHbVEJ';
+        $dbHost = getenv('DB_HOST') ;
+        $dbPort = getenv('DB_PORT') ;
+        $dbName = getenv('DB_NAME') ;
+        $dbUser = getenv('DB_USER') ;
+        $dbPass = getenv('DB_PASS') ;
         
         $dsn = "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4";
 
