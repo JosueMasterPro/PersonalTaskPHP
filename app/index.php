@@ -37,7 +37,7 @@ $app->get('/', function (Request $request, Response $response) {
     return $response;
 });
 //CRUD /api/usuarios
-// Ruta elect usuarios
+// Ruta select usuarios
 $app->get('/api/usuarios', function (Request $request, Response $response) {
     try {
         $db = new Database();
@@ -186,8 +186,7 @@ $app->post('/api/signUp', function (Request $request, Response $response) {
 });
 
 
-
-//verificar login
+//Iniciar Sesion
 // Ruta POST /api/login
 $app->post('/api/login', function (Request $request, Response $response) {
     try {
@@ -212,10 +211,12 @@ $app->post('/api/login', function (Request $request, Response $response) {
         $stmt->execute();
         
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-
+        if (!$usuario) {                     // ← no existe
+            throw new RuntimeException('Usuario no existe');
+        }
         // Verificar con password_verify
         if (!$usuario || !password_verify($data['password'], $usuario['password'])) {
-            throw new RuntimeException('Credenciales inválidas');
+            throw new RuntimeException('Contraseña incorrecta o usuario incorrecto');
         }
         
         // Ejecutar consulta
