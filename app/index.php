@@ -222,6 +222,11 @@ $app->post('/api/login', function (Request $request, Response $response) {
         $stmt->execute();
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
+         return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Cache-Control', 'no-store')
+            ->withStatus(201);
+        
         // Verificar si el usuario existe
         if (!$usuario) {
             throw new RuntimeException('Credenciales inválidas');
@@ -234,9 +239,7 @@ $app->post('/api/login', function (Request $request, Response $response) {
             'iat' => time(),
             'exp' => time() + (60 * 60) // Expira en 1 hora
         ];
-        
         $token = base64_encode(json_encode($tokenPayload));
-
         // Eliminar información sensible antes de responder
         unset($usuario['password']);
 
