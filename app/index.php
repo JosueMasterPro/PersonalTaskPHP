@@ -208,9 +208,9 @@ $app->post('/api/login', function (Request $request, Response $response) {
 
         // Consulta preparada usando el procedimiento almacenado
         $stmt = $conn->prepare("CALL sp_VerificarLogin(:usuario)");
-        
-        $stmt->execute();
         $stmt->bindParam(':usuario', $data['usuario']);
+        $stmt->execute();
+        
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
         // Verificar con password_verify
