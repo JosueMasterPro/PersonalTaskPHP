@@ -139,7 +139,8 @@ $app->post('/api/signUp', function (Request $request, Response $response) {
         $stmt->execute();
 
         // Aquí podrías enviar el correo de verificación usando el token
-        enviarCorreoVerificacion($data['email'], $token);
+        $mailSender = new MailSender();
+        $enviado = $mailSender->enviarVerificacion($email, $nombre, $token);
 
         // Respuesta exitosa (sin enviar el password hash)
         $responseData = [
