@@ -209,8 +209,9 @@ $app->post('/api/login', function (Request $request, Response $response) {
         // Consulta preparada usando el procedimiento almacenado
         $stmt = $conn->prepare("CALL sp_VerificarLogin(:usuario)");
         
-        $stmt->bindParam(':usuario', $data['usuario']);
         $stmt->execute();
+        $stmt->bindParam(':usuario', $data['usuario']);
+        $stmt->bindParam(':password', $data['password']);
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
         // Verificar con password_verify
@@ -221,11 +222,6 @@ $app->post('/api/login', function (Request $request, Response $response) {
         // Ejecutar consulta
         $stmt->execute();
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-
-         return $response
-            ->withHeader('Content-Type', 'application/json')
-            ->withHeader('Cache-Control', 'no-store')
-            ->withStatus(201);
         
         // Verificar si el usuario existe
         if (!$usuario) {
