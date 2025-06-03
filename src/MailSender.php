@@ -2,25 +2,29 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require __DIR__ . '/../vendor/autoload.php';  // Ajusta la ruta según tu estructura
+require __DIR__ . '/../vendor/autoload.php';
 
 class MailSender {
     private $mailer;
 
     public function __construct() {
         $this->mailer = new PHPMailer(true);
-        try {
-            // Configuración SMTP
-            $this->mailer->isSMTP();
-            $this->mailer->Host = 'smtp.tu-servidor.com'; // Cambia al SMTP de tu proveedor (Gmail, Outlook, etc)
-            $this->mailer->SMTPAuth = true;
-            $this->mailer->Username = 'tu-correo@example.com'; // Tu email SMTP
-            $this->mailer->Password = 'tu-password'; // Tu password SMTP o app password si usas Gmail
-            $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // o PHPMailer::ENCRYPTION_SMTPS
-            $this->mailer->Port = 587; // Cambia el puerto si es necesario
 
-            $this->mailer->setFrom('no-reply@tudominio.com', 'Tu Nombre o App');
+        try {
+            $this->mailer->isSMTP();
+            $this->mailer->Host = getenv('SMTP_HOST');
+            $this->mailer->SMTPAuth = true;
+            $this->mailer->Username = getenv('SMTP_USER');
+            $this->mailer->Password = getenv('SMTP_PASS');
+            $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $this->mailer->Port = getenv('SMTP_PORT');
+
+            $this->mailer->setFrom(getenv('SMTP_FROM'), getenv('SMTP_FROM_NAME'));
             $this->mailer->isHTML(true);
+
+            // Opcional para pruebas
+            // $this->mailer->SMTPDebug = 2;
+
         } catch (Exception $e) {
             error_log("Mailer Error: " . $e->getMessage());
             throw new Exception("Error al configurar el correo");
@@ -32,8 +36,7 @@ class MailSender {
             $this->mailer->addAddress($email, $nombre);
             $this->mailer->Subject = 'Confirma tu cuenta';
 
-            // URL de verificación (cambia tu dominio)
-            $urlVerificacion = "https://tudominio.com/verificar?token=" . urlencode($token);
+            $urlVerificacion = getenv('APP_URL') . "/verificar?token=" . urlencode($token);
 
             $this->mailer->Body = "
                 <h1>Confirma tu cuenta</h1>
@@ -50,3 +53,4 @@ class MailSender {
         }
     }
 }
+?>
