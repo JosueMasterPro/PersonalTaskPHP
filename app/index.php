@@ -5,6 +5,7 @@ use Slim\Factory\AppFactory;
 use Src\Database;
 
 require __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../src\MailSender.php'; // ruta de correo
 
 $app = AppFactory::create();
 
@@ -97,9 +98,9 @@ $app->post('/api/signUp', function (Request $request, Response $response) {
         // Obtener y decodificar los datos JSON
         $data = json_decode($request->getBody(), true);
 
-            // Validación de campos requeridos
-        if (empty($data['usuario']) ||empty($data['name']) || empty($data['secondName']) || empty($data['email']) || empty($data['password'])) {
-            throw new InvalidArgumentException('Todos los campos (nombre, apellido, correo, password) son requeridos');
+        // Validación de campos requeridos
+        if (empty($data['usuario']) || empty($data['name']) || empty($data['secondName']) || empty($data['email']) || empty($data['password'])) {
+            throw new InvalidArgumentException('Todos los campos (usuario, nombre, apellido, correo, password) son requeridos');
         }
 
         // Validación básica de email
@@ -116,12 +117,15 @@ $app->post('/api/signUp', function (Request $request, Response $response) {
         $db = new Database();
         $conn = $db->connect();
 
+        // Generar token seguro para verificación
+        $token = bin2hex(random_bytes(32));
+
         // Hash de la contraseña (nunca almacenar en texto plano)
         $passwordHash = password_hash($data['password'], PASSWORD_DEFAULT);
 
-        // Consulta preparada para seguridad
+        // Consulta preparada usando el procedimiento almacenado con token
         $stmt = $conn->prepare("
-            CALL sp_InsertarUsuario(:usuario,:nombre, :apellido, :correo, :password);
+            CALL sp_InsertarUsuario(:usuario, :nombre, :apellido, :correo, :password, :token);
         ");
 
         // Asignar valores con bindParam
@@ -130,16 +134,22 @@ $app->post('/api/signUp', function (Request $request, Response $response) {
         $stmt->bindParam(':apellido', $data['secondName']);
         $stmt->bindParam(':correo', $data['email']);
         $stmt->bindParam(':password', $passwordHash);
+        $stmt->bindParam(':token', $token);
 
         // Ejecutar consulta
         $stmt->execute();
 
+        // Aquí podrías enviar el correo de verificación usando el token
+        enviarCorreoVerificacion($data['email'], $token);
+
         // Respuesta exitosa (sin enviar el password hash)
         $responseData = [
             'success' => true,
-            'message' => 'Usuario registrado correctamente',
-            'user_id' => $conn->lastInsertId(),
+            'message' => 'Usuario registrado correctamente. Revisa tu correo para confirmar la cuenta.',
+            // El id nuevo puedes obtenerlo del SELECT en el SP, por ejemplo así:
+            'token_verificacion' => $token,
             'user_data' => [
+                'usuario' => $data['usuario'],
                 'nombre' => $data['name'],
                 'apellido' => $data['secondName'],
                 'correo' => $data['email']
@@ -148,31 +158,31 @@ $app->post('/api/signUp', function (Request $request, Response $response) {
 
         $response = new \Slim\Psr7\Response();
         $response->getBody()->write(json_encode($responseData));
-        
+
         return $response
             ->withHeader('Content-Type', 'application/json')
             ->withHeader('Cache-Control', 'no-store')
             ->withStatus(201);
-            
+
     } catch (PDOException $e) {
         error_log("DB Error: " . $e->getMessage());
-        
+
         // Manejo especial para errores de duplicado de correo
         if ($e->getCode() == 23000) { // Código para violación de clave única
             $errorMessage = 'El correo electrónico ya está registrado';
         } else {
             $errorMessage = 'Error en la base de datos';
         }
-        
+
         $response = new \Slim\Psr7\Response();
         $response->getBody()->write(json_encode([
             'success' => false,
             'error' => $errorMessage,
             'message' => getenv('APP_ENV') !== 'production' ? $e->getMessage() : null
         ]));
-        
+
         return $response->withStatus(500);
-            
+
     } catch (InvalidArgumentException $e) {
         $response = new \Slim\Psr7\Response();
         $response->getBody()->write(json_encode([
@@ -180,10 +190,33 @@ $app->post('/api/signUp', function (Request $request, Response $response) {
             'error' => 'Datos inválidos',
             'message' => $e->getMessage()
         ]));
-        
+
         return $response->withStatus(400);
     }
 });
+//Verificar Token
+$app->get('/verificar', function (Request $req, Response $res) use ($conn) {
+    $token = $req->getQueryParams()['token'] ?? '';
+
+    if (!$token) {
+        $res->getBody()->write("Token no proporcionado.");
+        return $res->withStatus(400);
+    }
+
+    $stmt = $conn->prepare("CALL sp_VerificarCuenta(:token)");
+    $stmt->bindParam(':token', $token);
+    $stmt->execute();
+
+    $filas = $stmt->fetchColumn();
+
+    if ($filas == 1) {
+        $res->getBody()->write("¡Cuenta verificada con éxito! Ya puedes iniciar sesión.");
+    } else {
+        $res->getBody()->write("Token inválido o cuenta ya verificada.");
+    }
+    return $res;
+});
+
 
 
 //Iniciar Sesion
