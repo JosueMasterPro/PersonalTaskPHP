@@ -33,7 +33,7 @@ class MailSender {
 
     public function enviarVerificacion($email, $nombre, $token) {
         try {
-            $this->mailer->addAddress($email, $nombre);
+            $this->mailer->addAddress('josuereyes1229@gmail.com', 'Josue Reyes');
             $this->mailer->Subject = 'Confirma tu cuenta';
 
             $urlVerificacion = getenv('APP_URL') . "/verificar?token=" . urlencode($token);
