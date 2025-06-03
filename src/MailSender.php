@@ -15,7 +15,7 @@ class MailSender {
             $this->mailer->Host = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
             $this->mailer->SMTPAuth = true;
             $this->mailer->Username = getenv('SMTP_USER') ?: 'SO2UNAHVS@gmail.com';
-            $this->mailer->Password = getenv('SMTP_PASS') ?: '30@Reyes' ;
+            $this->mailer->Password = getenv('SMTP_PASS') ?: 'lebj hnzg zchb elkm' ;
             $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $this->mailer->Port = getenv('SMTP_PORT') ?:'587';
 
