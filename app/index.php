@@ -338,34 +338,42 @@ $app->post('/api/login', function (Request $request, Response $response) {
 //Tabla de Tareas
 // Ruta GET /api/tareas
 $app->get('/api/tareas', function (Request $request, Response $response) {
+
     try {
-        $db = new Database();
+        /************* 1. Datos del usuario autenticado *************/
+        // Ejemplos: deberías obtenerlos de tu middleware o token
+        $userId   = $request->getAttribute('user_id');   // 'Josue999'
+        $isAdmin  = $request->getAttribute('is_admin');  // 1 ó 0
+
+        /************* 2. Conectar DB y llamar al SP *************/
+        $db   = new Database();
         $conn = $db->connect();
 
-        $stmt = $conn->query("SELECT * FROM tareas");
-        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $conn->prepare("CALL sp_ObtenerTareasPorRol(:uid, :admin)");
+        $stmt->bindParam(':uid',   $userId,  PDO::PARAM_STR);
+        $stmt->bindParam(':admin', $isAdmin, PDO::PARAM_INT);
+        $stmt->execute();
 
-        // Crear nueva respuesta para asegurar compatibilidad
-        $response = new \Slim\Psr7\Response();
-        $response->getBody()->write(json_encode($users));
-        
+        $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        /************* 3. Respuesta *************/
+        $payload = json_encode($tareas);
+
+        $response->getBody()->write($payload);
         return $response
             ->withHeader('Content-Type', 'application/json')
             ->withHeader('Cache-Control', 'no-store')
             ->withStatus(200);
-            
+
     } catch (PDOException $e) {
-        error_log("DB Error: " . $e->getMessage());
-        
-        $response = new \Slim\Psr7\Response();
+        error_log('DB Error: ' . $e->getMessage());
+
         $response->getBody()->write(json_encode([
-            'error' => 'Database error',
+            'error'   => 'Database error',
             'message' => getenv('APP_ENV') !== 'production' ? $e->getMessage() : null
         ]));
-        
-        return $response
-            ->withHeader('Content-Type', 'application/json')
-            ->withStatus(500);
+        return $response->withHeader('Content-Type', 'application/json')
+                        ->withStatus(500);
     }
 });
 
