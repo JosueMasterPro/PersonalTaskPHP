@@ -335,7 +335,7 @@ $app->post('/api/login', function (Request $request, Response $response) {
     }
 });
 
-
+//Tabla de Tareas
 // Ruta GET /api/tareas
 $app->get('/api/tareas', function (Request $request, Response $response) {
     try {
@@ -369,10 +369,80 @@ $app->get('/api/tareas', function (Request $request, Response $response) {
     }
 });
 
+//Editar tareas
+$app->put('/api/tareas/{id}', function (Request $request, Response $response, array $args) {
+    try {
+        $id = (int) $args['id'];
+        $data = json_decode($request->getBody(), true);
+
+        // Validaciones básicas
+        if (empty($data['titulo'])) {
+            throw new InvalidArgumentException('El título es requerido.');
+        }
+
+        // Conexión DB
+        $db = new Database();
+        $conn = $db->connect();
+
+        // Validar si la tarea existe
+        $check = $conn->prepare("SELECT id_Tarea FROM tareas WHERE id_Tarea = :id");
+        $check->bindParam(':id', $id, PDO::PARAM_INT);
+        $check->execute();
+        if ($check->rowCount() === 0) {
+            throw new InvalidArgumentException("La tarea con ID $id no existe.");
+        }
+
+        // Preparar actualización
+        $stmt = $conn->prepare("
+            UPDATE tareas
+            SET titulo = :titulo,
+                descripcion = :descripcion,
+                completada = :completada,
+                fecha_final = :fecha_final
+            WHERE id_Tarea = :id
+        ");
+
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->bindParam(':titulo', $data['titulo']);
+        $stmt->bindParam(':descripcion', $data['descripcion']);
+        $stmt->bindParam(':completada', $data['completada'], PDO::PARAM_BOOL);
+        $stmt->bindParam(':fecha_final', $data['fecha_final']);
+
+        $stmt->execute();
+
+        $response->getBody()->write(json_encode([
+            'success' => true,
+            'message' => 'Tarea actualizada exitosamente'
+        ]));
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(200);
+
+    } catch (InvalidArgumentException $e) {
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'Datos inválidos',
+            'message' => $e->getMessage()
+        ]));
+        return $response->withStatus(400);
+    } catch (PDOException $e) {
+        error_log("DB Error: " . $e->getMessage());
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'Error de base de datos',
+            'message' => getenv('APP_ENV') !== 'production' ? $e->getMessage() : null
+        ]));
+        return $response->withStatus(500);
+    }
+});
+
+
+
+
 
 $app->map(['OPTIONS'], '/{routes:.+}', function ($request, $response) {
     return $response;
 });
-
 $app->run();
 ?>
