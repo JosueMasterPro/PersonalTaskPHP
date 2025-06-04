@@ -341,17 +341,19 @@ $app->get('/api/tareas', function (Request $request, Response $response) {
 
     try {
         /************* 1. Datos del usuario autenticado *************/
-        // Ejemplos: deberías obtenerlos de tu middleware o token
-        $userId   = $request->getAttribute('user_id');   // 'Josue999'
-        $isAdmin  = $request->getAttribute('is_admin');  // 1 ó 0
+        $userId   = $request->getAttribute('user_id');  
+        $isAdmin  = $request->getAttribute('is_admin'); 
+        $tipo  = $request->getAttribute('tipo');  
 
         /************* 2. Conectar DB y llamar al SP *************/
         $db   = new Database();
         $conn = $db->connect();
 
-        $stmt = $conn->prepare("CALL sp_ObtenerTareasPorRol(:uid, :admin)");
+        $stmt = $conn->prepare("CALL sp_ObtenerTareasPorRol(:uid, :admin, :tipo)");
         $stmt->bindParam(':uid',   $userId,  PDO::PARAM_STR);
         $stmt->bindParam(':admin', $isAdmin, PDO::PARAM_INT);
+        $stmt->bindParam(':admin', $tipo, PDO::PARAM_INT);
+        
         $stmt->execute();
 
         $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
