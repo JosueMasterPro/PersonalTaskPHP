@@ -337,7 +337,7 @@ $app->post('/api/login', function (Request $request, Response $response) {
 
 //Tabla de Tareas
 // Ruta GET /api/tareas
-$app->get('/api/tareas', function (Request $request, Response $response) {
+$app->post('/api/tareas', function (Request $request, Response $response) {
 
     try {
         /************* 1. Datos del usuario autenticado *************/
