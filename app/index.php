@@ -455,9 +455,9 @@ $app->post('/api/tareas/Create', function (Request $request, Response $response)
 
         // Validar datos básicos
         if (
-            empty($data['id_usuario']) || empty($data['titulo']) || empty($data['tipo'])
+            empty($data['usuario']) || empty($data['titulo']) || empty($data['tipo'])
         ) {
-            throw new InvalidArgumentException('id_usuario, titulo y tipo son requeridos');
+            throw new InvalidArgumentException('usuario, titulo y tipo son requeridos');
         }
 
         // Valores opcionales
@@ -468,8 +468,8 @@ $app->post('/api/tareas/Create', function (Request $request, Response $response)
         $db = new Database();
         $conn = $db->connect();
 
-        $stmt = $conn->prepare("CALL sp_InsertarTarea(:id_usuario, :titulo, :tipo, :descripcion, :completada, :fecha_final)");
-        $stmt->bindParam(':id_usuario', $data['id_usuario']);
+        $stmt = $conn->prepare("CALL sp_InsertarTarea(:usuario, :titulo, :tipo, :descripcion, :completada, :fecha_final)");
+        $stmt->bindParam(':usuario', $data['usuario']);
         $stmt->bindParam(':titulo', $data['titulo']);
         $stmt->bindParam(':tipo', $data['tipo']);
         $stmt->bindParam(':descripcion', $descripcion);
