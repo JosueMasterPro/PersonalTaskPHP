@@ -342,18 +342,18 @@ $app->get('/api/tareas', function (Request $request, Response $response) {
     try {
         /************* 1. Datos del usuario autenticado *************/
         $userId   = $request->getAttribute('user_id');  
-        $isAdmin  = $request->getAttribute('is_admin'); 
+        $rol  = $request->getAttribute('rol'); 
         $tipo  = $request->getAttribute('tipo');  
 
         /************* 2. Conectar DB y llamar al SP *************/
         $db   = new Database();
         $conn = $db->connect();
 
-        $stmt = $conn->prepare("CALL sp_ObtenerTareasPorRol(:uid, :admin, :tipo)");
+        $stmt = $conn->prepare("CALL sp_ObtenerTareasPorRol(:uid, :rol, :tipo)");
         $stmt->bindParam(':uid',   $userId,  PDO::PARAM_STR);
-        $stmt->bindParam(':admin', $isAdmin, PDO::PARAM_INT);
+        $stmt->bindParam(':rol', $rol, PDO::PARAM_INT);
         $stmt->bindParam(':admin', $tipo, PDO::PARAM_INT);
-        
+
         $stmt->execute();
 
         $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
