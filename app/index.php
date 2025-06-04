@@ -43,7 +43,7 @@ $app->get('/api/usuarios', function (Request $request, Response $response) {
         $db = new Database();
         $conn = $db->connect();
 
-        $stmt = $conn->query("call sp_ObtenerUsuarios();");
+        $stmt = $conn->query("call sp_ObtenerUsuarios;");
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Crear nueva respuesta para asegurar compatibilidad
