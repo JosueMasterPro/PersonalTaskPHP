@@ -340,10 +340,11 @@ $app->post('/api/login', function (Request $request, Response $response) {
 $app->post('/api/tareas', function (Request $request, Response $response) {
     try {
         /************* 1. Datos del usuario autenticado *************/
-        $data = json_decode($request->getBody(),true);
-        $usuario   = $request->getAttribute('usuario');  
-        $rol  = $request->getAttribute('rol'); 
-        $tipo  = $request->getAttribute('tipo_task');  
+        $data = json_decode((string)$request->getBody(),true);
+
+        $usuario   = $data['usuario'];  
+        $rol  = $data['rol']; 
+        $tipo  = $data['tipo_task'];  
 
         /************* 2. Conectar DB y llamar al SP *************/
         $db   = new Database();
