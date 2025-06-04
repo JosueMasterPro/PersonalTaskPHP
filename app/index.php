@@ -449,7 +449,7 @@ $app->put('/api/tareas/{id}', function (Request $request, Response $response, ar
 });
 
 //crear tareas
-$app->post('/api/tareas', function (Request $request, Response $response) {
+$app->post('/api/tareas/Create', function (Request $request, Response $response) {
     try {
         $data = json_decode($request->getBody(), true);
 
