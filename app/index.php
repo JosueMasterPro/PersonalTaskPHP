@@ -448,6 +448,62 @@ $app->put('/api/tareas/{id}', function (Request $request, Response $response, ar
     }
 });
 
+//crear tareas
+$app->post('/api/tareas', function (Request $request, Response $response) {
+    try {
+        $data = json_decode($request->getBody(), true);
+
+        // Validar datos básicos
+        if (
+            empty($data['id_usuario']) || empty($data['titulo']) || empty($data['tipo'])
+        ) {
+            throw new InvalidArgumentException('id_usuario, titulo y tipo son requeridos');
+        }
+
+        // Valores opcionales
+        $descripcion = $data['descripcion'] ?? null;
+        $completada = isset($data['completada']) ? (int)$data['completada'] : 0;
+        $fecha_final = $data['fecha_final'] ?? null;
+
+        $db = new Database();
+        $conn = $db->connect();
+
+        $stmt = $conn->prepare("CALL sp_InsertarTarea(:id_usuario, :titulo, :tipo, :descripcion, :completada, :fecha_final)");
+        $stmt->bindParam(':id_usuario', $data['id_usuario']);
+        $stmt->bindParam(':titulo', $data['titulo']);
+        $stmt->bindParam(':tipo', $data['tipo']);
+        $stmt->bindParam(':descripcion', $descripcion);
+        $stmt->bindParam(':completada', $completada, PDO::PARAM_INT);
+        $stmt->bindParam(':fecha_final', $fecha_final);
+
+        $stmt->execute();
+
+        $responseData = [
+            'success' => true,
+            'message' => 'Tarea creada correctamente'
+        ];
+
+        $response->getBody()->write(json_encode($responseData));
+        return $response->withHeader('Content-Type', 'application/json')
+                        ->withStatus(201);
+
+    } catch (InvalidArgumentException $e) {
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'Datos inválidos',
+            'message' => $e->getMessage()
+        ]));
+        return $response->withStatus(400);
+    } catch (PDOException $e) {
+        error_log("DB Error: " . $e->getMessage());
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'Error en la base de datos',
+            'message' => getenv('APP_ENV') !== 'production' ? $e->getMessage() : null
+        ]));
+        return $response->withStatus(500);
+    }
+});
 
 
 
