@@ -336,11 +336,11 @@ $app->post('/api/login', function (Request $request, Response $response) {
 });
 
 //Tabla de Tareas
-// Ruta GET /api/tareas
+// Ruta para tareas filtradas
 $app->post('/api/tareas', function (Request $request, Response $response) {
-
     try {
         /************* 1. Datos del usuario autenticado *************/
+        $data = json_decode($request->getBody(),true);
         $usuario   = $request->getAttribute('usuario');  
         $rol  = $request->getAttribute('rol'); 
         $tipo  = $request->getAttribute('tipo_task');  
@@ -351,8 +351,8 @@ $app->post('/api/tareas', function (Request $request, Response $response) {
 
         $stmt = $conn->prepare("CALL sp_ObtenerTareasPorRol(:usuario, :rol, :tipo)");
         $stmt->bindParam(':usuario',   $usuario,  PDO::PARAM_STR);
-        $stmt->bindParam(':rol', $rol, PDO::PARAM_INT);
-        $stmt->bindParam(':tipo', $tipo, PDO::PARAM_INT);
+        $stmt->bindParam(':rol', $rol, PDO::PARAM_SRT);
+        $stmt->bindParam(':tipo', $tipo, PDO::PARAM_SRT);
 
         $stmt->execute();
 
