@@ -341,7 +341,7 @@ $app->get('/api/tareas', function (Request $request, Response $response) {
 
     try {
         /************* 1. Datos del usuario autenticado *************/
-        $userId   = $request->getAttribute('usuario');  
+        $usuario   = $request->getAttribute('usuario');  
         $rol  = $request->getAttribute('rol'); 
         $tipo  = $request->getAttribute('tipo_task');  
 
@@ -349,10 +349,10 @@ $app->get('/api/tareas', function (Request $request, Response $response) {
         $db   = new Database();
         $conn = $db->connect();
 
-        $stmt = $conn->prepare("CALL sp_ObtenerTareasPorRol(:uid, :rol, :tipo)");
-        $stmt->bindParam(':uid',   $userId,  PDO::PARAM_STR);
+        $stmt = $conn->prepare("CALL sp_ObtenerTareasPorRol(:usuario, :rol, :tipo)");
+        $stmt->bindParam(':usuario',   $usuario,  PDO::PARAM_STR);
         $stmt->bindParam(':rol', $rol, PDO::PARAM_INT);
-        $stmt->bindParam(':admin', $tipo, PDO::PARAM_INT);
+        $stmt->bindParam(':tipo', $tipo, PDO::PARAM_INT);
 
         $stmt->execute();
 
