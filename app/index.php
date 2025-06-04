@@ -352,8 +352,8 @@ $app->post('/api/tareas', function (Request $request, Response $response) {
 
         $stmt = $conn->prepare("CALL sp_ObtenerTareasPorRol(:usuario, :rol, :tipo)");
         $stmt->bindParam(':usuario',   $usuario,  PDO::PARAM_STR);
-        $stmt->bindParam(':rol', $rol, PDO::PARAM_SRT);
-        $stmt->bindParam(':tipo', $tipo, PDO::PARAM_SRT);
+        $stmt->bindParam(':rol', $rol, PDO::PARAM_STR);
+        $stmt->bindParam(':tipo', $tipo, PDO::PARAM_STR);
 
         $stmt->execute();
 
