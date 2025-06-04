@@ -341,9 +341,9 @@ $app->get('/api/tareas', function (Request $request, Response $response) {
 
     try {
         /************* 1. Datos del usuario autenticado *************/
-        $userId   = $request->getAttribute('user_id');  
+        $userId   = $request->getAttribute('usuario');  
         $rol  = $request->getAttribute('rol'); 
-        $tipo  = $request->getAttribute('tipo');  
+        $tipo  = $request->getAttribute('tipo_task');  
 
         /************* 2. Conectar DB y llamar al SP *************/
         $db   = new Database();
