@@ -453,20 +453,13 @@ $app->post('/api/tareas/Create', function (Request $request, Response $response)
     try {
         $data = json_decode($request->getBody(), true);
 
-        // Validar datos básicos
-        if (
-            empty($data['usuario']) || empty($data['titulo']) || empty($data['tipo'])
-        ) {
-            throw new InvalidArgumentException('usuario, titulo y tipo son requeridos');
-        }
-
         // Valores 
-        $usuario = $data['usuario'] ?? null;
-        $titulo = $data['titulo'] ?? null;
-        $tipo = $data['tipo'] ?? null;
-        $descripcion = $data['descripcion'] ?? null;
+        $usuario = $data['usuario'];
+        $titulo = $data['titulo'];
+        $tipo = $data['tipo'];
+        $descripcion = $data['descripcion'];
         $completada = false;
-        $fecha_final = $data['fecha_final'] ?? null;
+        $fecha_final = $data['fecha_final'];
         // Validar datos básicos
 
 
