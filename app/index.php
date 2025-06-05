@@ -451,10 +451,10 @@ $app->post('/api/tareas/Create', function (Request $request, Response $response)
         $titulo = $data['titulo'];
         $tipo = $data['tipo'];
         $descripcion = $data['descripcion'];
-        $completada = false;
+        $completada = 0;
         $fecha_final = $data['fecha_final'];
         // Validar datos básicos
-
+        error_log("Datos recibidos en API: " . print_r($usuario,$titulo,$tipo, true));
 
         $db = new Database();
         $conn = $db->connect();
