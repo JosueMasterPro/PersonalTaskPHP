@@ -459,7 +459,7 @@ $app->post('/api/tareas/Create', function (Request $request, Response $response)
         $db = new Database();
         $conn = $db->connect();
 
-        $stmt = $conn->prepare("CALL sp_InsertarTarea(:usuario, :titulo, :tipo, :descripcion, :completada, :fecha_final)");
+        $stmt = $conn->prepare("CALL sp_InsertarTarea(:usuario, :titulo, :tipo, :descripcion, :completada, :fecha_final )");
 
         $stmt->bindParam(':usuario', $usuario);
         $stmt->bindParam(':titulo', $titulo);
