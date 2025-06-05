@@ -36,6 +36,7 @@ $app->get('/', function (Request $request, Response $response) {
     $response->getBody()->write("¡Hola desde Slim en Railway!");
     return $response;
 });
+
 //CRUD /api/usuarios
 // Ruta select usuarios
 $app->get('/api/usuarios', function (Request $request, Response $response) {
@@ -69,27 +70,7 @@ $app->get('/api/usuarios', function (Request $request, Response $response) {
             ->withStatus(500);
     }
 });
-//test de ruta post /api/usuarios(funciona)
-/*$app->post('/api/usuarios', function (Request $request, Response $response) {
-    $data = json_decode($request->getBody(), true);
-    
-    return $response
-    ->withHeader('Content-Type', 'application/json')
-    ->withHeader('Cache-Control', 'no-store')
-    ->withStatus(200);
-    // Respuesta temporal para debug
-    return $response->withJson([
-        'debug' => true,
-        'datos_recibidos' => $data,
-        'validacion' => [
-            'usuario' => !empty($data['usuario']),
-            'nombre' => !empty($data['name']),
-            'apellido' => !empty($data['secondName']),
-            'correo' => filter_var($data['email'] ?? '', FILTER_VALIDATE_EMAIL),
-            'password' => !empty($data['password']) 
-        ]
-    ]);
-});*/
+
 /*Insertar usuarios */
 // Ruta POST /api/usuarios
 $app->post('/api/signUp', function (Request $request, Response $response) {
@@ -262,10 +243,6 @@ $app->post('/api/login', function (Request $request, Response $response) {
             throw new RuntimeException('Contraseña incorrecta o usuario incorrecto');
         }
         
-        // Ejecutar consulta
-        $stmt->execute();
-        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-    
         // Generar token de sesión (ejemplo básico)
         $tokenPayload = [
             'sub' => $usuario['id'],
@@ -442,26 +419,27 @@ $app->put('/api/tareas/{id}', function (Request $request, Response $response, ar
 });
 
 //crear tareas
-$app->post('/api/tareas/Create', function (Request $request, Response $response) {
+$app->post('/api/tareas/create', function (Request $request, Response $response) {
     try {
         $data = json_decode($request->getBody(), true);
-        error_log("Datos recibidos en API: " . print_r($data, true));
+
         // Valores 
-        $usuario = $data['usuario'];
+        $id_usuario = $data['id_usuario'];
         $titulo = $data['titulo'];
         $tipo = $data['tipo'];
         $descripcion = $data['descripcion'];
         $completada = 0;
         $fecha_final = $data['fecha_final'];
-        // Validar datos básicos
-        error_log("Datos recibidos en API: " . print_r($usuario,$titulo,$tipo, true));
+
+        // Validar datos básicos (puedes agregar validaciones más robustas)
+        error_log("Datos recibidos en API: " . print_r([$id_usuario, $titulo, $tipo], true));
 
         $db = new Database();
         $conn = $db->connect();
 
-        $stmt = $conn->prepare("CALL sp_InsertarTarea(:usuario, :titulo, :tipo, :descripcion, :completada, :fecha_final )");
+        $stmt = $conn->prepare("CALL sp_InsertarTarea(:id_usuario, :titulo, :tipo, :descripcion, :completada, :fecha_final)");
 
-        $stmt->bindParam(':usuario', $usuario);
+        $stmt->bindParam(':id_usuario', $id_usuario);
         $stmt->bindParam(':titulo', $titulo);
         $stmt->bindParam(':tipo', $tipo);
         $stmt->bindParam(':descripcion', $descripcion);
@@ -496,6 +474,7 @@ $app->post('/api/tareas/Create', function (Request $request, Response $response)
         return $response->withStatus(500);
     }
 });
+
 
 
 
