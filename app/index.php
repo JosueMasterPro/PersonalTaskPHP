@@ -460,18 +460,27 @@ $app->post('/api/tareas/Create', function (Request $request, Response $response)
             throw new InvalidArgumentException('usuario, titulo y tipo son requeridos');
         }
 
-        // Valores opcionales
+        // Valores 
+        $usuario = $data['usuario'] ?? null;
+        $titulo = $data['titulo'] ?? null;
+        $tipo = $data['tipo'] ?? null;
         $descripcion = $data['descripcion'] ?? null;
-        $completada = isset($data['completada']) ? (int)$data['completada'] : 0;
+        $completada = false;
         $fecha_final = $data['fecha_final'] ?? null;
+        // Validar datos básicos
+        if (
+            empty($usuario) || empty($titulo) || empty($tipo)
+        ) {
+            throw new InvalidArgumentException('usuario, titulo y tipo son requeridos');
+        }
 
         $db = new Database();
         $conn = $db->connect();
 
         $stmt = $conn->prepare("CALL sp_InsertarTarea(:usuario, :titulo, :tipo, :descripcion, :completada, :fecha_final)");
-        $stmt->bindParam(':usuario', $data['usuario']);
-        $stmt->bindParam(':titulo', $data['titulo']);
-        $stmt->bindParam(':tipo', $data['tipo']);
+        $stmt->bindParam(':usuario', $usuario);
+        $stmt->bindParam(':titulo', $titulo);
+        $stmt->bindParam(':tipo', $tipo);
         $stmt->bindParam(':descripcion', $descripcion);
         $stmt->bindParam(':completada', $completada, PDO::PARAM_INT);
         $stmt->bindParam(':fecha_final', $fecha_final);
