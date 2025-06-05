@@ -475,6 +475,49 @@ $app->post('/api/tareas/create', function (Request $request, Response $response)
     }
 });
 
+//Eliminar Tarea
+$app->delete('/api/tareas/delete/{id}', function (Request $request, Response $response, array $args) {
+    $id_Tarea = (int)$args['id'];
+
+    try {
+        if (!$id_Tarea) {
+            throw new InvalidArgumentException("ID de tarea inválido");
+        }
+
+        $db = new Database();
+        $conn = $db->connect();
+
+        $stmt = $conn->prepare("CALL sp_EliminarTarea(:id_Tarea)");
+        $stmt->bindParam(':id_Tarea', $id_Tarea, PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        $responseData = [
+            'success' => true,
+            'message' => "Tarea eliminada correctamente"
+        ];
+
+        $response->getBody()->write(json_encode($responseData));
+        return $response->withHeader('Content-Type', 'application/json')
+                        ->withStatus(200);
+
+    } catch (InvalidArgumentException $e) {
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'ID inválido',
+            'message' => $e->getMessage()
+        ]));
+        return $response->withStatus(400);
+    } catch (PDOException $e) {
+        error_log("DB Error: " . $e->getMessage());
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'Error en la base de datos',
+            'message' => getenv('APP_ENV') !== 'production' ? $e->getMessage() : null
+        ]));
+        return $response->withStatus(500);
+    }
+});
 
 
 
