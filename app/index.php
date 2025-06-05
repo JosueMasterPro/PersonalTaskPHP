@@ -445,7 +445,7 @@ $app->put('/api/tareas/{id}', function (Request $request, Response $response, ar
 $app->post('/api/tareas/Create', function (Request $request, Response $response) {
     try {
         $data = json_decode($request->getBody(), true);
-
+        error_log("Datos recibidos en API: " . print_r($data, true));
         // Valores 
         $usuario = $data['usuario'];
         $titulo = $data['titulo'];
@@ -460,6 +460,7 @@ $app->post('/api/tareas/Create', function (Request $request, Response $response)
         $conn = $db->connect();
 
         $stmt = $conn->prepare("CALL sp_InsertarTarea(:usuario, :titulo, :tipo, :descripcion, :completada, :fecha_final)");
+
         $stmt->bindParam(':usuario', $usuario);
         $stmt->bindParam(':titulo', $titulo);
         $stmt->bindParam(':tipo', $tipo);
