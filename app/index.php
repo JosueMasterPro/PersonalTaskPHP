@@ -404,7 +404,7 @@ $app->put('/api/tareas/{id}', function (Request $request, Response $response, ar
         }
 
         // Preparar actualización
-        $stmt = $conn->prepare("call procedure sp_actualizarTareas(:id,:titulo,:descripcion,:completada,:fecha_final)");
+        $stmt = $conn->prepare("CALL sp_actualizarTareas(:id,:titulo,:descripcion,:completada,:fecha_final)");
 
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->bindParam(':titulo', $data['titulo']);
