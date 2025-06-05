@@ -468,11 +468,7 @@ $app->post('/api/tareas/Create', function (Request $request, Response $response)
         $completada = false;
         $fecha_final = $data['fecha_final'] ?? null;
         // Validar datos básicos
-        if (
-            empty($usuario) || empty($titulo) || empty($tipo)
-        ) {
-            throw new InvalidArgumentException('usuario, titulo y tipo son requeridos');
-        }
+
 
         $db = new Database();
         $conn = $db->connect();
