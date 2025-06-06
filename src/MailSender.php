@@ -22,9 +22,6 @@ class MailSender {
             $this->mailer->setFrom(getenv('SMTP_FROM'), getenv('SMTP_FROM_NAME'));
             $this->mailer->isHTML(true);
 
-            // Opcional para pruebas
-            // $this->mailer->SMTPDebug = 2;
-
         } catch (Exception $e) {
             error_log("Mailer Error: " . $e->getMessage());
             throw new Exception("Error al configurar el correo");
