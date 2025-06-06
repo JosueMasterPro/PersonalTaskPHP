@@ -238,6 +238,61 @@ $app->put('/api/usuarios', function (Request $request, Response $response) {
 });
 
 
+$app->put('/api/edit/usuarios', function (Request $request, Response $response) {
+    try {
+        $data = json_decode($request->getBody(), true);
+        $id = $data['id'];
+
+        // Validaciones básicas
+        if (empty($data['usuario']) || empty($data['nombre']) || empty($data['apellido']) || empty($data['email']) || empty($data['rol'])) {
+            throw new InvalidArgumentException('Faltan campos obligatorios.');
+        }
+
+        // Conexión
+        $db = new Database();
+        $conn = $db->connect();
+
+        // Validar si el usuario existe
+        $check = $conn->prepare("CALL sp_VerificarExistenciaUsuario(:id)");
+        $check->bindParam(':id', $id, PDO::PARAM_INT);
+        $check->execute();
+        if ($check->rowCount() === 0) {
+            throw new InvalidArgumentException("El usuario con ID $id no existe.");
+        }
+        $check->closeCursor();
+        // Llamar al procedimiento
+        $stmt = $conn->prepare("CALL sp_UsuarioDesactivado(:id)");
+
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        $response->getBody()->write(json_encode([
+            'success' => true,
+            'message' => 'Usuario actualizado correctamente.'
+        ]));
+
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+
+    } catch (InvalidArgumentException $e) {
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'Datos inválidos',
+            'message' => $e->getMessage()
+        ]));
+        return $response->withStatus(400);
+    } catch (PDOException $e) {
+        error_log("DB Error: " . $e->getMessage());
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'Error de base de datos',
+            'message' => getenv('APP_ENV') !== 'production' ? $e->getMessage() : null
+        ]));
+        return $response->withStatus(500);
+    }
+});
+
+
 //Iniciar Sesion
 // Ruta POST /api/login
 $app->post('/api/login', function (Request $request, Response $response) {
