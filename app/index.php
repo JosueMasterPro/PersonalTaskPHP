@@ -201,7 +201,7 @@ $app->put('/api/usuarios', function (Request $request, Response $response) {
         }
 
         // Llamar al procedimiento
-        $stmt = $conn->prepare("CALL sp_actualizarUsuarioConRol(:id, :usuario, :nombre, :apellido, :email, :rol)");
+        $stmt = $conn->prepare("CALL sp_actualizarUsuarioYRol(:id, :usuario, :nombre, :apellido, :email, :rol)");
 
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->bindParam(':usuario', $data['usuario']);
