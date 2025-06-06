@@ -201,13 +201,14 @@ $app->put('/api/usuarios', function (Request $request, Response $response) {
         }
         $check->closeCursor();
         // Llamar al procedimiento
-        $stmt = $conn->prepare("CALL sp_actualizarUsuarioYRol(:id, :usuario, :nombre, :apellido, :email, :rol)");
+        $stmt = $conn->prepare("CALL sp_actualizarUsuarioYRol(:id, :usuario, :nombre, :apellido, :email,:activo, :rol)");
 
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->bindParam(':usuario', $data['usuario']);
         $stmt->bindParam(':nombre', $data['nombre']);
         $stmt->bindParam(':apellido', $data['apellido']);
         $stmt->bindParam(':email', $data['email']);
+        $stmt->bindParam(':activo', $data['activo'],PDO::PARAM_INT);
         $stmt->bindParam(':rol', $data['rol']);
 
         $stmt->execute();
@@ -242,11 +243,6 @@ $app->put('/api/edit/usuarios', function (Request $request, Response $response) 
     try {
         $data = json_decode($request->getBody(), true);
         $id = $data['id'];
-
-        // Validaciones básicas
-        if (empty($data['usuario']) || empty($data['nombre']) || empty($data['apellido']) || empty($data['email']) || empty($data['rol'])) {
-            throw new InvalidArgumentException('Faltan campos obligatorios.');
-        }
 
         // Conexión
         $db = new Database();
