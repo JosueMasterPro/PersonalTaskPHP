@@ -180,8 +180,6 @@ $app->post('/api/signUp', function (Request $request, Response $response) {
 //Ruta POST /api/usuarios
 $app->put('/api/usuarios/{id}', function (Request $request, Response $response, array $args) {
     try {
-        $rawInput = (string) $request->getBody();
-        error_log("JSON recibido: " . $rawInput);
         $id = (int) $args['id'];
         $data = json_decode($request->getBody(), true);
 
@@ -210,7 +208,7 @@ $app->put('/api/usuarios/{id}', function (Request $request, Response $response, 
         $stmt->bindParam(':nombre', $data['nombre']);
         $stmt->bindParam(':apellido', $data['apellido']);
         $stmt->bindParam(':email', $data['email']);
-        $stmt->bindParam(':rol', $data['rol'], PDO::PARAM_INT);
+        $stmt->bindParam(':rol', $data['rol']);
 
         $stmt->execute();
 
@@ -469,9 +467,6 @@ $app->post('/api/tareas/create', function (Request $request, Response $response)
         $descripcion = $data['descripcion'];
         $completada = 0;
         $fecha_final = $data['fecha_final'];
-
-        // Validar datos básicos (puedes agregar validaciones más robustas)
-        error_log("Datos recibidos en API: " . print_r([$id_usuario, $titulo, $tipo], true));
 
         $db = new Database();
         $conn = $db->connect();
