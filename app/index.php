@@ -324,6 +324,10 @@ $app->post('/api/login', function (Request $request, Response $response) {
         if (isset($usuario['verificado']) && !$usuario['verificado']) {
             throw new RuntimeException('Usuario no verificado. Por favor verifica tu correo.');
         }
+        if (isset($usuario['activo']) && !$usuario['activo']) {
+            throw new RuntimeException('El usuario está desactivado. Contacta al administrador.');
+        }
+
 
         // Verificar con password_verify
         if (!$usuario || !password_verify($data['password'], $usuario['password'])) {
