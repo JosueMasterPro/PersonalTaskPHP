@@ -180,6 +180,8 @@ $app->post('/api/signUp', function (Request $request, Response $response) {
 //Ruta POST /api/usuarios
 $app->put('/api/usuarios/{id}', function (Request $request, Response $response, array $args) {
     try {
+        $rawInput = (string) $request->getBody();
+        error_log("JSON recibido: " . $rawInput);
         $id = (int) $args['id'];
         $data = json_decode($request->getBody(), true);
 
