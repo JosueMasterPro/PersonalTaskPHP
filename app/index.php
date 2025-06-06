@@ -9,7 +9,7 @@ require_once __DIR__ . '/../src/MailSender.php'; // ruta de correo
 
 $app = AppFactory::create();
 
-// Middleware CORS (debe ser el PRIMER middleware)
+// Middleware CORS (va siempre de primero)
 $app->add(function ($request, $handler) {
     // Respuesta para preflight OPTIONS
     if ($request->getMethod() === 'OPTIONS') {
@@ -31,14 +31,14 @@ $app->add(function ($request, $handler) {
         ->withHeader('Vary', 'Origin');
 });
 
-/* RUTAS */
+/* ruta por defecto de la api, no se si se quita*/
 $app->get('/', function (Request $request, Response $response) {
     $response->getBody()->write("¡Hola desde Slim en Railway!");
     return $response;
 });
 
-//CRUD /api/usuarios
-// Ruta select usuarios
+//tabla usuarios
+// Ruta GET /api/usuarios
 $app->get('/api/usuarios', function (Request $request, Response $response) {
     try {
         $db = new Database();
@@ -175,32 +175,67 @@ $app->post('/api/signUp', function (Request $request, Response $response) {
         return $response->withStatus(400);
     }
 });
-// Verificar Token
-$app->get('/verificar', function (Request $req, Response $res) {
-    $token = $req->getQueryParams()['token'] ?? '';
-    
-    if (!$token) {
-        $res->getBody()->write("Token no proporcionado.");
-        return $res->withStatus(400);
+//Editar usuarios
+//Ruta POST /api/usuarios
+$app->put('/api/usuarios/{id}', function (Request $request, Response $response, array $args) {
+    try {
+        $id = (int) $args['id'];
+        $data = json_decode($request->getBody(), true);
+
+        // Validaciones básicas
+        if (empty($data['usuario']) || empty($data['nombre']) || empty($data['apellido']) || empty($data['email']) || empty($data['id_rol'])) {
+            throw new InvalidArgumentException('Faltan campos obligatorios.');
+        }
+
+        // Conexión
+        $db = new Database();
+        $conn = $db->connect();
+
+        // Validar si el usuario existe
+        $check = $conn->prepare("SELECT id_usuario FROM usuarios WHERE id_usuario = :id");
+        $check->bindParam(':id', $id, PDO::PARAM_INT);
+        $check->execute();
+        if ($check->rowCount() === 0) {
+            throw new InvalidArgumentException("El usuario con ID $id no existe.");
+        }
+
+        // Llamar al procedimiento
+        $stmt = $conn->prepare("CALL sp_actualizarUsuarioConRol(:id, :usuario, :nombre, :apellido, :email, :rol)");
+
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->bindParam(':usuario', $data['usuario']);
+        $stmt->bindParam(':nombre', $data['nombre']);
+        $stmt->bindParam(':apellido', $data['apellido']);
+        $stmt->bindParam(':email', $data['email']);
+        $stmt->bindParam(':rol', $data['rol'], PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        $response->getBody()->write(json_encode([
+            'success' => true,
+            'message' => 'Usuario actualizado correctamente.'
+        ]));
+
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+
+    } catch (InvalidArgumentException $e) {
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'Datos inválidos',
+            'message' => $e->getMessage()
+        ]));
+        return $response->withStatus(400);
+    } catch (PDOException $e) {
+        error_log("DB Error: " . $e->getMessage());
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'Error de base de datos',
+            'message' => getenv('APP_ENV') !== 'production' ? $e->getMessage() : null
+        ]));
+        return $response->withStatus(500);
     }
-
-    // Crear conexión dentro de la función
-    $db = new Database();
-    $conn = $db->connect();
-
-    $stmt = $conn->prepare("CALL sp_VerificarCuenta(:token)");
-    $stmt->bindParam(':token', $token);
-    $stmt->execute();
-
-    $filas = $stmt->fetchColumn();
-
-    if ($filas == 1) {
-        $res->getBody()->write("¡Cuenta verificada con éxito! Ya puedes iniciar sesión.");
-    } else {
-        $res->getBody()->write("Token inválido o cuenta ya verificada.");
-    }
-    return $res;
 });
+
 
 //Iniciar Sesion
 // Ruta POST /api/login
@@ -311,6 +346,7 @@ $app->post('/api/login', function (Request $request, Response $response) {
         return $response->withStatus(401);
     }
 });
+//fin Tabla usuario
 
 //Tabla de Tareas
 // Ruta para tareas filtradas
@@ -519,8 +555,32 @@ $app->delete('/api/tareas/delete/{id}', function (Request $request, Response $re
     }
 });
 
+// Verificar Token
+$app->get('/verificar', function (Request $req, Response $res) {
+    $token = $req->getQueryParams()['token'] ?? '';
+    
+    if (!$token) {
+        $res->getBody()->write("Token no proporcionado.");
+        return $res->withStatus(400);
+    }
 
+    // Crear conexión dentro de la función
+    $db = new Database();
+    $conn = $db->connect();
 
+    $stmt = $conn->prepare("CALL sp_VerificarCuenta(:token)");
+    $stmt->bindParam(':token', $token);
+    $stmt->execute();
+
+    $filas = $stmt->fetchColumn();
+
+    if ($filas == 1) {
+        $res->getBody()->write("¡Cuenta verificada con éxito! Ya puedes iniciar sesión.");
+    } else {
+        $res->getBody()->write("Token inválido o cuenta ya verificada.");
+    }
+    return $res;
+});
 
 $app->map(['OPTIONS'], '/{routes:.+}', function ($request, $response) {
     return $response;
