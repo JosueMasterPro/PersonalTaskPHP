@@ -193,7 +193,7 @@ $app->put('/api/usuarios', function (Request $request, Response $response) {
         $conn = $db->connect();
 
         // Validar si el usuario existe
-        $check = $conn->prepare("CALL sp_VerificarLogin(:id)");
+        $check = $conn->prepare("CALL sp_VerificarExistenciaUsuario(:id)");
         $check->bindParam(':id', $id, PDO::PARAM_INT);
         $check->execute();
         if ($check->rowCount() === 0) {
