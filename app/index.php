@@ -199,7 +199,7 @@ $app->put('/api/usuarios', function (Request $request, Response $response) {
         if ($check->rowCount() === 0) {
             throw new InvalidArgumentException("El usuario con ID $id no existe.");
         }
-
+        $check->closeCursor();
         // Llamar al procedimiento
         $stmt = $conn->prepare("CALL sp_actualizarUsuarioYRol(:id, :usuario, :nombre, :apellido, :email, :rol)");
 
