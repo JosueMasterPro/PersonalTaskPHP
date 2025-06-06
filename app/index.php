@@ -37,7 +37,7 @@ $app->get('/', function (Request $request, Response $response) {
     return $response;
 });
 
-//tabla usuarios
+//Leer Usuarios
 // Ruta GET /api/usuarios
 $app->get('/api/usuarios', function (Request $request, Response $response) {
     try {
