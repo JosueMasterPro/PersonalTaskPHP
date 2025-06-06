@@ -186,7 +186,7 @@ $app->put('/api/usuarios/{id}', function (Request $request, Response $response, 
         $data = json_decode($request->getBody(), true);
 
         // Validaciones básicas
-        if (empty($data['usuario']) || empty($data['nombre']) || empty($data['apellido']) || empty($data['email']) || empty($data['id_rol'])) {
+        if (empty($data['usuario']) || empty($data['nombre']) || empty($data['apellido']) || empty($data['email']) || empty($data['id'])) {
             throw new InvalidArgumentException('Faltan campos obligatorios.');
         }
 
