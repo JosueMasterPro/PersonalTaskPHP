@@ -175,6 +175,7 @@ $app->post('/api/signUp', function (Request $request, Response $response) {
         return $response->withStatus(400);
     }
 });
+
 //Editar usuarios
 //Ruta POST /api/usuarios
 $app->put('/api/usuarios/{id}', function (Request $request, Response $response, array $args) {
@@ -192,7 +193,7 @@ $app->put('/api/usuarios/{id}', function (Request $request, Response $response, 
         $conn = $db->connect();
 
         // Validar si el usuario existe
-        $check = $conn->prepare("SELECT id_usuario FROM usuarios WHERE id_usuario = :id");
+        $check = $conn->prepare("CALL sp_VerificarLogin(:id)");
         $check->bindParam(':id', $id, PDO::PARAM_INT);
         $check->execute();
         if ($check->rowCount() === 0) {
