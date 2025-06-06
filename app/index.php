@@ -178,13 +178,13 @@ $app->post('/api/signUp', function (Request $request, Response $response) {
 
 //Editar usuarios
 //Ruta POST /api/usuarios
-$app->put('/api/usuarios/{id}', function (Request $request, Response $response, array $args) {
+$app->put('/api/usuarios', function (Request $request, Response $response) {
     try {
-        $id = (int) $args['id'];
         $data = json_decode($request->getBody(), true);
+        $id = $data['id'];
 
         // Validaciones básicas
-        if (empty($data['usuario']) || empty($data['nombre']) || empty($data['apellido']) || empty($data['email']) || empty($data['id'])) {
+        if (empty($data['usuario']) || empty($data['nombre']) || empty($data['apellido']) || empty($data['email']) || empty($data['rol'])) {
             throw new InvalidArgumentException('Faltan campos obligatorios.');
         }
 
