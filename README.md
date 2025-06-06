@@ -26,9 +26,6 @@ Backend desarrollado en Slim PHP para gestionar tareas y autenticación.
 git clone https://github.com/JosueMasterPro/PersonalTaskPHP.git
 cd PersonalTaskPHP
  
----
-
-```
 ## Instala dependencias con Composer:
 
 coposer install
