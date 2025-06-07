@@ -18,18 +18,19 @@ Backend desarrollado en Slim PHP para gestionar tareas y autenticación.
 
 ---
 ## Dependencias
-    -slim/slim: ^4.14,
-    -slim/psr7: ^1.7,
-    -symfony/polyfill-php80: ^1.32,
-    -vlucas/phpdotenv: ^5.6,
-    -phpmailer/phpmailer: ^6.10
+- slim/slim: ^4.14,
+- slim/psr7: ^1.7,
+- symfony/polyfill-php80: ^1.32,
+- vlucas/phpdotenv: ^5.6,
+- phpmailer/phpmailer: ^6.10
 
 ## 📦 Instalación local
 
-1. Clona el repositorio:
+Clona el repositorio:
 
 ```sh
 git clone https://github.com/JosueMasterPro/PersonalTaskPHP.git
+
 ```
 
 ```sh
@@ -42,6 +43,7 @@ composer install
 ```
 
 ## crear un archio .env
+
 ```sh
 MYSQL_URL=URL
 MYSQLDATABASE=Nombre_base_de_datos
@@ -54,6 +56,7 @@ MYSQLUSER=usuario
  Los archivos .sql para crear la estructura de la base están en la carpeta Database/
 
  Importarlos Usando Mysql Workbench o consola
+
 ```sh
 mysql -u usuario -p nombre_base < Database/archivo.sql
 ```
@@ -70,9 +73,9 @@ DB_NAME=nombre_base_railway
 DB_USER=usuario_railway
 DB_PASS=contraseña_railway
 JWT_SECRET=tu_clave_secreta
-
 ```
- posiblemnte te falten variables para la funcion enviar correo
+
+-posiblemnte te falten variables para la funcion enviar correo
 ## Configuración SMTP para envío de correos (PHPMailer)
 
 ```sh
@@ -84,7 +87,7 @@ SMTP_FROM=correo@tu-dominio.com
 SMTP_FROM_NAME="Nombre Remitente"
 ```
 
-Tabla tarea: 
+##Tabla tarea: 
 
 | id | id_usuario | titulo | tipo | descripcion | completado | fecha_final | fecha_creacion|
 |----|------------|--------|------|-------------|------------|-------------|---------------|
