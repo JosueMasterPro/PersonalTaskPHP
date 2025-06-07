@@ -17,6 +17,12 @@ Backend desarrollado en Slim PHP para gestionar tareas y autenticación.
 - Base de datos MySQL (usaremos Railway para el hosting)
 
 ---
+## Dependencias
+    -slim/slim: ^4.14,
+    -slim/psr7: ^1.7,
+    -symfony/polyfill-php80: ^1.32,
+    -vlucas/phpdotenv: ^5.6,
+    -phpmailer/phpmailer: ^6.10
 
 ## 📦 Instalación local
 
@@ -25,9 +31,11 @@ Backend desarrollado en Slim PHP para gestionar tareas y autenticación.
 ```sh
 git clone https://github.com/JosueMasterPro/PersonalTaskPHP.git
 ```
+
 ```sh
 cd PersonalTaskPHP
  ```
+
 ## Instala dependencias con Composer:
 ```sh
 composer install
