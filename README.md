@@ -52,6 +52,11 @@ MYSQLPASSWORD=contraseña
 MYSQLPORT=puerto
 MYSQLUSER=usuario
 ```
+## Ejecutar de forma local la api
+```sh
+php -S localhost:8080 -t app
+```
+- app nombre de su carpeta principal
 ## 🗄️ Configuración de la base de datos
  Los archivos .sql para crear la estructura de la base están en la carpeta Database/
 
