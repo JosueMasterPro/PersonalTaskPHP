@@ -87,7 +87,7 @@ SMTP_FROM=correo@tu-dominio.com
 SMTP_FROM_NAME="Nombre Remitente"
 ```
 
-##Tabla tarea: 
+## Tabla tarea: 
 
 | id | id_usuario | titulo | tipo | descripcion | completado | fecha_final | fecha_creacion|
 |----|------------|--------|------|-------------|------------|-------------|---------------|
