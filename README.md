@@ -42,18 +42,18 @@ MYSQLPORT=puerto
 MYSQLUSER=usuario
 ```
 ## 🗄️ Configuración de la base de datos
-# Los archivos .sql para crear la estructura de la base están en la carpeta Database/
+ Los archivos .sql para crear la estructura de la base están en la carpeta Database/
 
-# Importarlos Usando Mysql Workbench o consola
+ Importarlos Usando Mysql Workbench o consola
 ```sh
 mysql -u usuario -p nombre_base < Database/archivo.sql
 ```
 
-## 🏗️ Despliegue en Railway
-# Crea una cuenta y un proyecto en [Railway](https://railway.app/)
-# Conecta tu repositorio de github con backend para deploy automatico en railway
-# no subas la carpeta vendor al repositorio o fallara
-# Configura las variables de entrono en Railway (settings > Variables):
+🏗️ Despliegue en Railway
+ Crea una cuenta y un proyecto en [Railway](https://railway.app/)
+ Conecta tu repositorio de github con backend para deploy automatico en railway
+ no subas la carpeta vendor al repositorio o fallara
+ Configura las variables de entrono en Railway (settings > Variables):
 
 ```sh
 DB_HOST=host_railway
@@ -63,8 +63,8 @@ DB_PASS=contraseña_railway
 JWT_SECRET=tu_clave_secreta
 
 ```
-# posiblemnte te falten variables para la funcion enviar correo
-# Configuración SMTP para envío de correos (PHPMailer)
+ posiblemnte te falten variables para la funcion enviar correo
+## Configuración SMTP para envío de correos (PHPMailer)
 
 ```sh
 SMTP_HOST=smtp.ejemplo.com // yo use smtp.gmail.com
