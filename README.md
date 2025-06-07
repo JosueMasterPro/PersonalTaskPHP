@@ -23,7 +23,7 @@ Backend desarrollado en Slim PHP para gestionar tareas y autenticación.
 - symfony/polyfill-php80: ^1.32,
 - vlucas/phpdotenv: ^5.6,
 - phpmailer/phpmailer: ^6.10
-
+```
 ## 📦 Instalación local
 
 Clona el repositorio:
@@ -62,10 +62,10 @@ mysql -u usuario -p nombre_base < Database/archivo.sql
 ```
 
 🏗️ Despliegue en Railway
- Crea una cuenta y un proyecto en [Railway](https://railway.app/)
- Conecta tu repositorio de github con backend para deploy automatico en railway
- no subas la carpeta vendor al repositorio o fallara
- Configura las variables de entrono en Railway (settings > Variables):
+- Crea una cuenta y un proyecto en [Railway](https://railway.app/)
+- Conecta tu repositorio de github con backend para deploy automatico en railway
+- no subas la carpeta vendor al repositorio o fallara
+- Configura las variables de entrono en Railway (settings > Variables):
 
 ```sh
 DB_HOST=host_railway
@@ -75,7 +75,7 @@ DB_PASS=contraseña_railway
 JWT_SECRET=tu_clave_secreta
 ```
 
--posiblemnte te falten variables para la funcion enviar correo
+- posiblemnte te falten variables para la funcion enviar correo
 ## Configuración SMTP para envío de correos (PHPMailer)
 
 ```sh
